@@ -9,12 +9,11 @@ KEYLIST = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l',
            'm', 'n', 'o', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z']
 
 
-def getMidiInput():
+class NoInputableMidiDevice(Exception):
+    pass
 
-    global NoInputableMidiDevice
 
-    class NoInputableMidiDevice(Exception):
-        pass
+def getMidiInput() -> pygame.midi.Input:
 
     midiList = []
     for n in range(pygame.midi.get_count()):
@@ -32,20 +31,20 @@ def getMidiInput():
     print()
     print()
 
-    def intInput(prompt):
+    def intInput(prompt: str, errMsg: str = "Invalid input, try again") -> int:
         while True:
             try:
                 return int(input(prompt))
             except ValueError:
-                print("Invalid input, try again")
-                return(intInput(prompt))
+                print(errMsg)
+                return(intInput(prompt, errMsg))
 
-    global midiDivice
     midiDivice = intInput("Enter Midi Device Number: ")
     midiDivice = pygame.midi.Input(midiDivice)
+    return midiDivice
 
 
-def main():
+def main(midiDivice: pygame.midi.Input) -> None:
     while True:
         if midiDivice.poll():
             event = midiDivice.read(1)[0]
@@ -68,14 +67,9 @@ def main():
 
 if __name__ == "__main__":
     try:
-        getMidiInput()
+        midi = getMidiInput()
     except NoInputableMidiDevice as e:
-        print()
-        print()
-        print("*"*80)
-        print(e)
-        print("*"*80)
-        print()
-        print()
+        _80star = "*"*80
+        print(f"\n \n {_80star} \n {e} \n {_80star}\n \n")
         exit()
-    main()
+    main(midi)
