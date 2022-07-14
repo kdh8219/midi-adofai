@@ -30,7 +30,7 @@ def getMidiInput() -> pygame.midi.Input:
         print()
         print()
         for n in range(len(midiList)):
-            print(f"{midiList[n]}")
+            print(f"{midiList[n][0]} {midiList[n][1]} {midiList[n][2]}")
         print()
         print()
 
