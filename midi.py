@@ -17,31 +17,34 @@ def getMidiInput() -> pygame.midi.Input:
 
     midiList = []
     for n in range(pygame.midi.get_count()):
-        midiList.append(f"{n} {pygame.midi.get_device_info(n)[0]} {pygame.midi.get_device_info(n)[1]}"
+        midiList.append([n, pygame.midi.get_device_info(n)[0], pygame.midi.get_device_info(n)[1]]
                         if pygame.midi.get_device_info(n)[2] == 1 else "")
 
     midiList = list(filter(None, midiList))
     if len(midiList) == 0:
         raise(NoInputableMidiDevice(
             "No inputable MIDI devices found:Try to plug in a MIDI device and restart the program"))
-    print()
-    print()
-    for n in range(len(midiList)):
-        print(f"{midiList[n]}")
-    print()
-    print()
+    elif len(midiList) == 1:
+        return pygame.midi.Input(midiList[0][0])
+    else:
+        print()
+        print()
+        for n in range(len(midiList)):
+            print(f"{midiList[n]}")
+        print()
+        print()
 
-    def intInput(prompt: str, errMsg: str = "Invalid input, try again") -> int:
-        while True:
-            try:
-                return int(input(prompt))
-            except ValueError:
-                print(errMsg)
-                return(intInput(prompt, errMsg))
+        def intInput(prompt: str, errMsg: str = "Invalid input, try again") -> int:
+            while True:
+                try:
+                    return int(input(prompt))
+                except ValueError:
+                    print(errMsg)
+                    return(intInput(prompt, errMsg))
 
-    midiDivice = intInput("Enter Midi Device Number: ")
-    midiDivice = pygame.midi.Input(midiDivice)
-    return midiDivice
+        midiDivice = intInput("Enter Midi Device Number: ")
+        midiDivice = pygame.midi.Input(midiDivice)
+        return midiDivice
 
 
 def main(midiDivice: pygame.midi.Input) -> None:
