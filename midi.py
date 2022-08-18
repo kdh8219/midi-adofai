@@ -1,12 +1,5 @@
 import pygame.midi
 import pyautogui
-pygame.midi.init()
-
-# SETUP
-ONLY_UPPER_C5 = False
-USE_LONG_NOTE = False
-KEYLIST = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l',
-           'm', 'n', 'o', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z']
 
 
 class NoInputableMidiDevice(Exception):
@@ -47,21 +40,20 @@ def getMidiInput() -> pygame.midi.Input:
         return midiDivice
 
 
-def main(midiDivice: pygame.midi.Input) -> None:
+def run(midiDivice: pygame.midi.Input, ONLY_UPPER_C5: bool,
+        KEYLIST: list[str] = ['a', 'b', 'c', 'd', 'e', 'g', 'h', 'i',
+                              'j', 'k', 'l', 'm', 'q', 'r', 't', 'u', 'v', 'w', 'x', 'y', 'z']
+        ) -> None:
+    pyautogui.PAUSE = 0
     while True:
         if midiDivice.poll():
             event = midiDivice.read(1)[0]
             data = event[0]
             if ((ONLY_UPPER_C5 and (data[1] >= 72 and data[0] == 144)) or (not ONLY_UPPER_C5 and data[0] == 144)):
-                if USE_LONG_NOTE:
-                    pyautogui.keyDown(KEYLIST[data[1] % len(KEYLIST)])
-                    print(
-                        f"{event}=>key down \"{KEYLIST[data[1] % len(KEYLIST)]}\"")
-                else:
-                    pyautogui.press(KEYLIST[data[1] % len(KEYLIST)])
-                    print(
-                        f"{event}=>key press \"{KEYLIST[data[1] % len(KEYLIST)]}\"")
-            elif (USE_LONG_NOTE and ((ONLY_UPPER_C5 and (data[1] >= 72 and data[0] == 128)) or (not ONLY_UPPER_C5 and data[0] == 128))):
+                pyautogui.keyDown(KEYLIST[data[1] % len(KEYLIST)])
+                print(
+                    f"{event}=>key down \"{KEYLIST[data[1] % len(KEYLIST)]}\"")
+            elif ((ONLY_UPPER_C5 and (data[1] >= 72 and data[0] == 128)) or (not ONLY_UPPER_C5 and data[0] == 128)):
                 pyautogui.keyUp(KEYLIST[data[1] % len(KEYLIST)])
                 print(f"{event}=>key up \"{KEYLIST[data[1] % len(KEYLIST)]}\"")
             else:
@@ -69,10 +61,19 @@ def main(midiDivice: pygame.midi.Input) -> None:
 
 
 if __name__ == "__main__":
+    pygame.midi.init()
+
+    def runner(only_upper_c5: bool = False):
+        print("\nscope:", "only upper c5"if only_upper_c5 else "all")
+        print()
+        try:
+            run(getMidiInput(), only_upper_c5)
+        except NoInputableMidiDevice as e:
+            print(f"\n \n {'*'*80} \n {e} \n {'*'*80}\n \n")
+            exit()
     try:
-        midi = getMidiInput()
-    except NoInputableMidiDevice as e:
-        _80star = "*"*80
-        print(f"\n \n {_80star} \n {e} \n {_80star}\n \n")
-        exit()
-    main(midi)
+        import typer
+        typer.run(runner)
+    except ImportError:
+        print("\nno typer:\"\"\"install typer\"\"\"")
+        runner()
