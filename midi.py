@@ -41,19 +41,17 @@ def getMidiInput() -> pygame.midi.Input:
 
 
 def run(midiDivice: pygame.midi.Input, ONLY_UPPER_C5: bool,
-        KEYLIST: list[str] = ['a', 'b', 'c', 'd', 'e', 'g', 'h', 'i',
-                              'j', 'k', 'l', 'm', 'q', 'r', 't', 'u', 'v', 'w', 'x', 'y', 'z']
+        KEYLIST: list[str] = ['a', 'b', 'c', 'd', 'e', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'q', 'r', 't', 'u', 'v', 'w', 'x', 'y', 'z']
         ) -> None:
     pyautogui.PAUSE = 0
     while True:
         if midiDivice.poll():
             event = midiDivice.read(1)[0]
             data = event[0]
-            if ((ONLY_UPPER_C5 and (data[1] >= 72 and data[0] == 144)) or (not ONLY_UPPER_C5 and data[0] == 144)):
+            if (((ONLY_UPPER_C5 and data[1] >= 72)or(not ONLY_UPPER_C5)) and data[0] == 144):
                 pyautogui.keyDown(KEYLIST[data[1] % len(KEYLIST)])
-                print(
-                    f"{event}=>key down \"{KEYLIST[data[1] % len(KEYLIST)]}\"")
-            elif ((ONLY_UPPER_C5 and (data[1] >= 72 and data[0] == 128)) or (not ONLY_UPPER_C5 and data[0] == 128)):
+                print(f"{event}=>key down \"{KEYLIST[data[1] % len(KEYLIST)]}\"")
+            elif (((ONLY_UPPER_C5 and data[1] >= 72) or (not ONLY_UPPER_C5))  and data[0] == 128):
                 pyautogui.keyUp(KEYLIST[data[1] % len(KEYLIST)])
                 print(f"{event}=>key up \"{KEYLIST[data[1] % len(KEYLIST)]}\"")
             else:
